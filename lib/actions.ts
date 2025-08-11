@@ -80,20 +80,7 @@ export async function signUp(prevState: any, formData: FormData) {
       return { error: error.message }
     }
 
-    // If user is created, also create/update profile
-    if (data.user) {
-      const { error: profileError } = await supabase.from("profiles").upsert({
-        id: data.user.id,
-        full_name: fullName.toString(),
-        email: email.toString(),
-        occupation: occupation?.toString() || "",
-        phone_number: phoneNumber?.toString() || "",
-      })
-
-      if (profileError) {
-        console.error("Profile creation error:", profileError)
-      }
-    }
+    // The trigger will create the profile with the data from raw_user_meta_data
 
     return { success: "Account created successfully! Please check your email to confirm your account." }
   } catch (error) {

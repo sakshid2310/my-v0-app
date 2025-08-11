@@ -1,11 +1,11 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useEffect } from "react"
 import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Loader2 } from "lucide-react"
+import { Loader2, Mail, CheckCircle } from "lucide-react"
 import { signUp } from "@/lib/actions"
 
 function SubmitButton() {
@@ -37,6 +37,52 @@ interface SignUpModalProps {
 export function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
   const [state, formAction] = useActionState(signUp, null)
 
+  useEffect(() => {
+    if (state?.success) {
+      const timer = setTimeout(() => {
+        onClose()
+      }, 3000) // Close after 3 seconds to let user read the message
+      return () => clearTimeout(timer)
+    }
+  }, [state?.success, onClose])
+
+  if (state?.success) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-semibold text-center text-green-600">
+              Account Created Successfully!
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="text-center py-6">
+            <div className="flex justify-center mb-4">
+              <div className="bg-green-100 p-3 rounded-full">
+                <Mail className="h-8 w-8 text-green-600" />
+              </div>
+            </div>
+
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Check Your Email</h3>
+            <p className="text-gray-600 mb-4">
+              We've sent you a confirmation email. Please click the link in the email to activate your account and sign
+              in.
+            </p>
+
+            <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
+              <CheckCircle className="inline h-4 w-4 mr-2" />
+              This window will close automatically in a few seconds.
+            </div>
+          </div>
+
+          <Button onClick={onClose} variant="outline" className="w-full bg-transparent">
+            Close
+          </Button>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
@@ -48,12 +94,6 @@ export function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
           {state?.error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
               {state.error}
-            </div>
-          )}
-
-          {state?.success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-              {state.success}
             </div>
           )}
 
